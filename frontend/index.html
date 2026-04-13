@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER CRYPTO RUN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --neon-cyan: #0ff;
+            --neon-magenta: #f0f;
+            --neon-yellow: #ff0;
+            --dark-bg: #050510;
+        }
+
+        /* The road bg is a tall repeating tile - scrolls DOWN (positive y increases downward) */
+        body {
+            background-color: var(--dark-bg);
+            background-image: url('{{ url_for("static", filename="road.png") }}');
+            background-size: cover;
+            background-repeat: repeat-y;
+            /* Start at the TOP of the image so scrolling down means the road approaching */
+            background-position: center 0px;
+            background-attachment: fixed;
+            transition: background-position-y 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Rajdhani', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, .orbitron { font-family: 'Orbitron', sans-serif; }
+
+        /* Road scroll: advances the bg DOWN (positive px) so road appears to approach viewer */
+        body.road-moving {
+            transition: background-position-y 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel {
+            background: rgba(5, 5, 16, 0.88);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 255, 0.25);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.08), inset 0 0 30px rgba(0, 255, 255, 0.04);
+        }
+
+        .glitch-text {
+            text-shadow: 2px 0 var(--neon-cyan), -2px 0 var(--neon-magenta);
+            animation: glitch-anim 2s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim {
+            0%   { text-shadow: 2px 0 var(--neon-cyan),    -2px 0 var(--neon-magenta); }
+            50%  { text-shadow: -2px 0 var(--neon-cyan),    2px 0 var(--neon-magenta); }
+            100% { text-shadow: 2px 0 var(--neon-magenta), -2px 0 var(--neon-cyan);    }
+        }
+
+        .cyber-btn {
+            position: relative;
+            background: transparent;
+            color: var(--neon-cyan);
+            border: 2px solid var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+        }
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--neon-cyan);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .cyber-btn:hover                { color: #000; box-shadow: 0 0 30px var(--neon-cyan); }
+        .cyber-btn:hover::before        { opacity: 1; }
+        .cyber-btn.magenta              { border-color: var(--neon-magenta); color: var(--neon-magenta); }
+        .cyber-btn.magenta::before      { background: var(--neon-magenta); }
+        .cyber-btn.magenta:hover        { box-shadow: 0 0 30px var(--neon-magenta); color: #000; }
+        .cyber-btn.yellow               { border-color: var(--neon-yellow); color: var(--neon-yellow); }
+        .cyber-btn.yellow::before       { background: var(--neon-yellow); }
+        .cyber-btn.yellow:hover         { box-shadow: 0 0 30px var(--neon-yellow); color: #000; }
+
+        .cyber-input {
+            width: 100%;
+            background: #000;
+            border: none;
+            border-left: 4px solid var(--neon-cyan);
+            border-bottom: 4px solid var(--neon-cyan);
+            padding: 1rem 1.2rem;
+            color: var(--neon-cyan);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            outline: none;
+        }
+        .cyber-input:focus { background: #0a0a1a; }
+
+        /* Formula / math block */
+        .formula-block {
+            background: rgba(0,0,0,0.7);
+            border: 1px solid rgba(0,255,255,0.3);
+            border-left: 4px solid var(--neon-cyan);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.4rem;
+            white-space: pre-line;
+            text-align: center;
+            line-height: 2.5;
+            color: #e0e0e0;
+        }
+        .formula-block .math-line {
+            display: block;
+            color: var(--neon-cyan);
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--neon-cyan);
+            letter-spacing: 2px;
+            margin: 0.5rem 0;
+        }
+        .formula-block .char-line {
+            display: block;
+            color: #c0cfe0;
+            font-size: 1.3rem;
+        }
+
+        .card-hidden { display: none; }
+        .neon-border-left  { border-left: 4px solid var(--neon-magenta); box-shadow: -10px 0 25px -5px rgba(255,0,255,0.4); }
+        .neon-border-dec   { border-left: 4px solid var(--neon-yellow);  box-shadow: -10px 0 25px -5px rgba(255,255,0,0.4); }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--dark-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <nav class="fixed top-0 left-0 w-full p-5 z-50 glass-panel border-b-2 border-cyan-500 flex justify-between items-center">
+        <h1 class="text-3xl font-black text-white glitch-text tracking-widest uppercase cursor-pointer" onclick="location.reload()">
+            CyberCrypto<span class="text-cyan-400">Run</span>
+        </h1>
+        <div class="hidden md:flex space-x-2 items-center">
+            <div class="h-2 w-8 bg-cyan-400 rounded animate-pulse"></div>
+            <div class="h-2 w-4 rounded animate-pulse" style="background-color:var(--neon-magenta)"></div>
+            <div class="h-2 w-2 rounded animate-pulse" style="background-color:var(--neon-yellow)"></div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 pt-40 pb-40 flex flex-col items-center space-y-32" id="main-container">
+
+        <!-- ===== SETUP CARD ===== -->
+        <section class="w-full max-w-3xl animate__animated animate__zoomIn" id="setup-view">
+            <div class="glass-panel p-10 relative">
+                <div class="absolute top-2 right-4 text-xs text-cyan-500 font-mono">SYS.LOGIN // SEC_LEVEL: HIGH</div>
+                <h2 class="text-3xl font-bold mb-8 text-cyan-400 uppercase tracking-widest text-center orbitron">Config Payload</h2>
+
+                <div class="space-y-8">
+                    <div>
+                        <label class="text-cyan-500 font-mono mb-2 block text-lg">&gt; Enter Secret Message:</label>
+                        <input type="text" id="inputMessage" placeholder="Awaiting string..." autocomplete="off" class="cyber-input text-xl">
+                    </div>
+
+                    <div>
+                        <label class="text-cyan-500 font-mono mb-4 block text-lg">&gt; Select Cryptography Level:</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <button onclick="selectLevel('easy')"   id="btn-easy"   class="cyber-btn p-5 text-base">LVL 1: CAESAR</button>
+                            <button onclick="selectLevel('medium')" id="btn-medium" class="cyber-btn yellow p-5 text-base">LVL 2: XOR</button>
+                            <button onclick="selectLevel('hard')"   id="btn-hard"   class="cyber-btn magenta p-5 text-base">LVL 3: RSA</button>
+                        </div>
+                    </div>
+
+                    <div id="params-container" class="hidden space-y-4 pt-6 border-t border-cyan-900">
+
+                        <!-- Caesar params -->
+                        <div id="params-easy" class="hidden">
+                            <label class="text-yellow-400 font-mono mb-2 block text-lg">&gt; Shift Key (k):</label>
+                            <input type="number" id="input-k" value="3" min="1" max="25" class="cyber-input" style="border-color:var(--neon-yellow)">
+                        </div>
+
+                        <!-- XOR params -->
+                        <div id="params-medium" class="hidden">
+                            <label class="text-yellow-400 font-mono mb-2 block text-lg">&gt; XOR Secret Key (max 2-digit number or 1 letter):</label>
+                            <input type="text" id="input-xor" value="42" maxlength="2" class="cyber-input" style="border-color:var(--neon-yellow)">
+                        </div>
+
+                        <!-- RSA params -->
+                        <div id="params-hard" class="hidden">
+                            <p class="text-base text-cyan-300 mb-4">Select 2 <strong>distinct</strong> prime numbers (≤ 97):</p>
+                            <div class="flex space-x-6">
+                                <div class="w-1/2">
+                                    <label class="font-mono mb-2 block text-lg" style="color:var(--neon-magenta)">&gt; Prime p:</label>
+                                    <select id="input-p" class="cyber-input cursor-pointer" style="border-color:var(--neon-magenta)">
+                                        <option value="11" selected>11</option><option value="13">13</option>
+                                        <option value="17">17</option><option value="19">19</option>
+                                        <option value="23">23</option><option value="29">29</option>
+                                        <option value="31">31</option><option value="37">37</option>
+                                        <option value="41">41</option><option value="43">43</option>
+                                        <option value="47">47</option><option value="53">53</option>
+                                        <option value="59">59</option><option value="61">61</option>
+                                        <option value="67">67</option><option value="71">71</option>
+                                        <option value="73">73</option><option value="79">79</option>
+                                        <option value="83">83</option><option value="89">89</option>
+                                        <option value="97">97</option>
+                                    </select>
+                                </div>
+                                <div class="w-1/2">
+                                    <label class="font-mono mb-2 block text-lg" style="color:var(--neon-magenta)">&gt; Prime q:</label>
+                                    <select id="input-q" class="cyber-input cursor-pointer" style="border-color:var(--neon-magenta)">
+                                        <option value="11">11</option><option value="13" selected>13</option>
+                                        <option value="17">17</option><option value="19">19</option>
+                                        <option value="23">23</option><option value="29">29</option>
+                                        <option value="31">31</option><option value="37">37</option>
+                                        <option value="41">41</option><option value="43">43</option>
+                                        <option value="47">47</option><option value="53">53</option>
+                                        <option value="59">59</option><option value="61">61</option>
+                                        <option value="67">67</option><option value="71">71</option>
+                                        <option value="73">73</option><option value="79">79</option>
+                                        <option value="83">83</option><option value="89">89</option>
+                                        <option value="97">97</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="startEncryption()" class="cyber-btn w-full p-5 mt-6 text-xl">INITIALIZE ENCRYPTION SEQUENCE</button>
+                        <div id="error-msg" class="text-red-500 font-mono text-center mt-2 hidden text-xl font-bold glitch-text"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== STEPS WILL BE INJECTED HERE ===== -->
+        <div id="steps-container" class="w-full max-w-4xl flex flex-col items-center space-y-32"></div>
+
+    </main>
+
+    <script>
+        let currentLevel = null;
+        let globalData   = null;
+        let bgY = 0; // current background-position-y in px (positive = road scrolls DOWN = approaching viewer)
+
+        /* ──────────── Road scroll (DOWN = road approaches viewer) ──────────── */
+        function scrollRoad(amount = 500) {
+            bgY += amount;
+            document.body.style.backgroundPositionY = bgY + 'px';
+        }
+
+        /* ──────────── Level selection ──────────── */
+        function selectLevel(level) {
+            currentLevel = level;
+            ['easy','medium','hard'].forEach(l => {
+                document.getElementById('btn-'+l).style.boxShadow = 'none';
+                document.getElementById('params-'+l).classList.add('hidden');
+            });
+            document.getElementById('btn-'+level).style.boxShadow = '0 0 25px white';
+            document.getElementById('params-container').classList.remove('hidden');
+            document.getElementById('params-'+level).classList.remove('hidden');
+            scrollRoad(300);
+        }
+
+        /* ──────────── Start encryption ──────────── */
+        async function startEncryption() {
+            const msg = document.getElementById('inputMessage').value;
+            if (!msg) { alert('System requires a secret message payload!'); return; }
+            if (!currentLevel) { alert('Select a level first!'); return; }
+
+            let payload = { message: msg, level: currentLevel };
+            if (currentLevel === 'easy')   payload.k   = document.getElementById('input-k').value;
+            if (currentLevel === 'medium') payload.key = document.getElementById('input-xor').value;
+            if (currentLevel === 'hard')  { payload.p = document.getElementById('input-p').value; payload.q = document.getElementById('input-q').value; }
+
+            try {
+                const res  = await fetch('/api/start', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (res.status !== 200) { showError(data.error || 'Encryption failed.'); return; }
+
+                document.getElementById('error-msg').classList.add('hidden');
+                globalData = data;
+                globalData.level = currentLevel;
+
+                scrollRoad(600);
+                renderSteps(data);
+            } catch(err) { showError('SYSTEM ERROR: ' + err.message); }
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error-msg');
+            el.innerText = '[ERROR]: ' + msg;
+            el.classList.remove('hidden');
+        }
+
+        /* ──────────── Render a step card ──────────── */
+        function makeCard(id, milestoneLabel, title, descText, buttonHtml, borderClass='neon-border-left', hidden=false) {
+            // Convert \n to proper display lines; detect formula-ish lines
+            const lines = descText.split('\n');
+            const linesHtml = lines.map(line => {
+                if (!line.trim()) return '<br>';
+                // Lines with = / mod / XOR / × / ^ / → / φ treated as formula
+                const isFormula = /[=×^⊕φ→]|mod\s|XOR|gcd|ascii/i.test(line);
+                const cls = isFormula ? 'math-line' : 'char-line';
+                return `<span class="${cls}">${escHtml(line)}</span>`;
+            }).join('');
+
+            return `
+            <div id="${id}" class="w-full glass-panel ${borderClass} p-10 pt-12 relative ${hidden ? 'card-hidden' : ''} transform transition-all duration-500">
+                <div class="absolute -top-4 -left-4 text-black font-black px-3 py-2 orbitron text-sm" style="background:var(--neon-magenta)">
+                    ${milestoneLabel}
+                </div>
+                <h3 class="text-3xl font-black text-white mb-6 uppercase tracking-wider text-center orbitron">${escHtml(title)}</h3>
+                <div class="formula-block mb-8">${linesHtml}</div>
+                ${buttonHtml}
+            </div>`;
+        }
+
+        function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        /* ──────────── Render all encryption steps ──────────── */
+        function renderSteps(data) {
+            document.getElementById('setup-view').classList.add('card-hidden');
+            const container = document.getElementById('steps-container');
+            container.innerHTML = '';
+
+            data.steps.forEach((step, idx) => {
+                const isLast = idx === data.steps.length - 1;
+                const id     = `step-enc-${idx}`;
+                let btnHtml;
+
+                if (isLast) {
+                    btnHtml = `
+                    <div class="bg-black p-6 border border-cyan-500 mb-8 text-center">
+                        <span class="block text-xs text-cyan-600 uppercase font-bold mb-3 tracking-widest orbitron">Final_Cipher_Output</span>
+                        <code class="text-2xl break-all font-mono" style="color:var(--neon-magenta);text-shadow:0 0 12px var(--neon-magenta)">${escHtml(String(data.res))}</code>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <button onclick="location.reload()" class="cyber-btn p-5 text-lg">SYSTEM RESET</button>
+                        <button onclick="startDecryptionWalk()" class="cyber-btn yellow p-5 text-lg">⚡ ENGAGE DECRYPTION LOOP</button>
+                    </div>`;
+                } else {
+                    btnHtml = `<button onclick="revealNext('step-enc-${idx+1}')" class="cyber-btn yellow w-full p-5 text-xl">PROCEED ▼</button>`;
+                }
+
+                container.innerHTML += makeCard(id, `MILESTONE 0${idx+1}`, step.t, step.d, btnHtml, 'neon-border-left', idx !== 0);
+            });
+
+            setTimeout(() => document.getElementById('step-enc-0').scrollIntoView({behavior:'smooth', block:'center'}), 400);
+        }
+
+        /* ──────────── Reveal next card ──────────── */
+        function revealNext(nextId) {
+            const el = document.getElementById(nextId);
+            if (!el) return;
+            el.classList.remove('card-hidden');
+            el.classList.add('animate__animated','animate__zoomIn');
+            scrollRoad(500);  // road scrolls DOWN as next card appears
+            setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'center'}), 120);
+        }
+
+        /* ──────────── Decryption walkthrough ──────────── */
+        function startDecryptionWalk() {
+            scrollRoad(500);
+            const container = document.getElementById('steps-container');
+            const decsteps  = globalData.decryption_steps;
+
+            decsteps.forEach((step, idx) => {
+                const isLast = idx === decsteps.length - 1;
+                const id     = `step-dec-${idx}`;
+                let btnHtml;
+
+                if (isLast) {
+                    const label = currentLevel === 'easy'   ? 'Shift Key (k):'
+                                : currentLevel === 'medium' ? 'XOR Key (number or letter):'
+                                :                             'Private exponent d:';
+                    btnHtml = `
+                    <div class="mt-6 text-center space-y-4">
+                        <p class="text-xl text-yellow-400 font-bold orbitron mb-2">⚡ CRACK THE CODE</p>
+                        <label class="text-cyan-300 font-mono block text-lg">&gt; ${label}</label>
+                        <input type="text" id="guess-input" class="cyber-input w-1/2 mx-auto text-center text-2xl" placeholder="???" style="border-color:var(--neon-yellow)">
+                        <button onclick="submitGuess()" class="cyber-btn magenta w-full p-5 text-2xl font-black tracking-widest mt-4">HACK MAINFRAME</button>
+                        <div id="decrypt-msg" class="font-mono mt-4 text-2xl font-bold hidden p-4 orbitron"></div>
+                        <button onclick="location.reload()" class="cyber-btn w-full p-4 text-lg mt-2">SYSTEM RESET</button>
+                    </div>`;
+                } else {
+                    btnHtml = `<button onclick="revealDecNext('step-dec-${idx+1}')" class="cyber-btn yellow w-full p-5 text-xl">NEXT DECRYPTION STEP ▼</button>`;
+                }
+
+                container.innerHTML += makeCard(id, `DECRYPT 0${idx+1}`, step.t, step.d, btnHtml, 'neon-border-dec', true);
+            });
+
+            // Reveal first decryption step
+            const firstDec = document.getElementById('step-dec-0');
+            firstDec.classList.remove('card-hidden');
+            firstDec.classList.add('animate__animated','animate__zoomIn');
+            setTimeout(() => firstDec.scrollIntoView({behavior:'smooth', block:'center'}), 120);
+        }
+
+        function revealDecNext(nextId) {
+            const el = document.getElementById(nextId);
+            if (!el) return;
+            el.classList.remove('card-hidden');
+            el.classList.add('animate__animated','animate__zoomIn');
+            scrollRoad(500);
+            setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'center'}), 120);
+        }
+
+        /* ──────────── Submit guess ──────────── */
+        async function submitGuess() {
+            const guess = document.getElementById('guess-input').value;
+            if (!guess) return;
+
+            const payload = {
+                level:    globalData.level,
+                res:      globalData.res,
+                original: globalData.original,
+                guess:    guess
+            };
+            if (globalData.level === 'hard') {
+                payload.public_key = globalData.public_key;
+                payload.correct_d  = globalData.private_key[0];
+            }
+
+            try {
+                const res  = await fetch('/api/guess_decrypt', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+
+                const msgEl = document.getElementById('decrypt-msg');
+                msgEl.classList.remove('hidden','text-red-500','text-green-400');
+
+                if (data.status === 'success') {
+                    msgEl.classList.add('text-green-400');
+                    msgEl.innerText = '✅ ' + data.message;
+                    confetti({ particleCount: 200, spread: 120, origin: {y:0.6}, colors: ['#0ff','#f0f','#ff0','#0f0'] });
+                    document.body.style.boxShadow = 'inset 0 0 80px #0f0';
+                    setTimeout(() => document.body.style.boxShadow = 'none', 1500);
+                } else {
+                    msgEl.classList.add('text-red-500','animate__animated','animate__headShake');
+                    msgEl.innerText = '❌ ' + data.message;
+                    document.body.style.boxShadow = 'inset 0 0 80px #f00';
+                    setTimeout(() => {
+                        document.body.style.boxShadow = 'none';
+                        msgEl.classList.remove('animate__headShake');
+                    }, 1200);
+                }
+            } catch(err) { console.error(err); }
+        }
+    </script>
+</body>
+</html>
