@@ -1,202 +1,200 @@
-# 🌌 Fractal Generator (Mandelbrot Visualizer)
+# 🔐 Cryptography Visualizer (Step-by-Step Encryption & Decryption)
 
 ---
 
 ## 📌 Project Overview
 
-The **Fractal Generator** is a mathematical visualization project that generates complex and visually appealing patterns known as **fractals** using the **Mandelbrot Set**.
+The **Cryptography Visualizer** is an educational web application designed to demonstrate how different cryptographic algorithms work internally.
 
-This project demonstrates how **simple mathematical equations**, when applied repeatedly (iteratively), can produce **infinitely complex structures**. It bridges the gap between abstract mathematics and real-world visualization.
-
----
-
-## 🎯 What This Project Does
-
-This application allows users to:
-
-* Enter the number of iterations
-* Generate a fractal image dynamically
-* Visualize how mathematical behavior changes across points
-
-### 🔄 Flow of Execution
-
-1. User inputs iteration value
-2. Backend computes values for each pixel
-3. Each pixel is mapped to a mathematical result
-4. Color is assigned based on the result
-5. Final output appears as a fractal pattern
+Instead of only showing input and output, this system **explains each step of encryption and decryption**, making it easier to understand the underlying mathematical concepts.
 
 ---
 
-## 🧠 Core Mathematical Concept
+## 🎯 Objective
 
-The project is based on the **Mandelbrot Set**, defined by the iterative equation:
-
-z = z² + c
-
-Where:
-
-* `z` starts at 0
-* `c` is a complex number representing a point on the plane
-* The function is applied repeatedly
+* To visualize cryptographic algorithms
+* To explain **how encryption and decryption actually happen**
+* To bridge the gap between theory and implementation
+* To make complex mathematical concepts easy to understand
 
 ---
 
-## 🔍 Mathematical Logic (Step-by-Step)
+## 🚀 Features
 
-For each pixel on the screen:
+* 🔐 Supports **3 Levels of Cryptography**
 
-### 1. Convert Pixel → Complex Number
+  * 🟢 Easy → Caesar Cipher
+  * 🟡 Medium → XOR (Block Cipher Concept)
+  * 🔴 Hard → RSA
 
-Each pixel `(x, y)` is mapped to a complex number:
+* 🧠 Step-by-step explanation system
 
-* Real part → horizontal axis
-* Imaginary part → vertical axis
+* 🔄 Shows both **encryption and decryption process**
 
----
+* 🎨 Modern UI with hover effects and transitions
 
-### 2. Iteration Process
-
-We repeatedly apply:
-
-z₀ = 0
-z₁ = z₀² + c
-z₂ = z₁² + c
-...
+* ⚡ Interactive user input
 
 ---
 
-### 3. Convergence Check
+## 🧠 Mathematical Concepts Used
 
-We check:
+### 🟢 Caesar Cipher
 
-* If |z| < 2 → stays bounded → part of fractal
-* If |z| ≥ 2 → diverges → outside fractal
+* Modular arithmetic
+* Formula:
 
----
-
-### 4. Color Mapping
-
-* Fast divergence → darker color
-* Slow divergence → brighter color
-* No divergence → inside fractal (black)
+  C = (P + k) mod 26
+  P = (C - k) mod 26
 
 ---
 
-## 🎨 Visualization Logic
+### 🟡 XOR Cipher (Block Concept)
 
-Each pixel’s color depends on:
+* Bitwise operations
 
-* Number of iterations taken to diverge
-* This creates smooth gradients and patterns
+* Formula:
 
-Example:
+  C = P ⊕ K
 
-* Low iterations → dark shades
-* High iterations → bright colors
-* Max iterations → deep black region
+* Key property:
 
----
+  P = C ⊕ K
 
-## 💡 Why This Looks Complex
-
-Even though the equation is simple:
-
-* Repeated iteration creates chaos-like behavior
-* Small changes in input lead to huge visual differences
-* This results in **self-similar and infinitely detailed structures**
+(XOR is reversible)
 
 ---
 
-## 🛠️ Technologies Used
+### 🔴 RSA Algorithm
 
-* **Python** → Core computation
-* **Flask** → Backend server
-* **HTML/CSS** → User Interface
-* **NumPy** → Efficient numerical operations
+* Number theory
+* Prime numbers
+* Modular arithmetic
+
+Key formulas:
+
+n = p × q
+φ(n) = (p − 1)(q − 1)
+
+Encryption:
+c = m^e mod n
+
+Decryption:
+m = c^d mod n
+
+---
+
+## 🔄 How It Works
+
+1. User enters a message
+2. Selects security level
+3. System performs encryption
+4. Step-by-step explanation is shown
+5. Decryption process is demonstrated
+6. Original message is recovered
+
+---
+
+## 🎨 UI & Interaction
+
+* Dark theme modern design
+* Smooth transitions between steps
+* “Next” button reveals each stage
+* Clear separation of encryption and decryption
 
 ---
 
 ## 📁 Project Structure
 
-fractal_project/
+crypto_visualizer/
 │
-├── app.py → Backend logic (Flask + math computation)
-├── templates/
-│   └── index.html → UI + rendering
-├── README.md → Documentation
+├── app.py → Backend logic (Flask)
+├── rsa_core.py → RSA algorithm implementation
+└── templates/
+  └── index.html → UI + step visualization
 
 ---
 
-## ▶️ How to Run the Project
+## 🛠️ Tech Stack
 
-### 1. Navigate to Project Folder
-
-cd fractal_project
+* Python
+* Flask
+* HTML
+* CSS
+* JavaScript
 
 ---
 
-### 2. Create Virtual Environment (Recommended)
+## ▶️ How to Run
+
+### 1. Navigate to project folder
+
+cd crypto_visualizer
+
+---
+
+### 2. Create virtual environment (optional)
 
 python -m venv venv
 source venv/bin/activate
 
 ---
 
-### 3. Install Dependencies
+### 3. Install dependencies
 
-pip install flask numpy
+pip install flask
 
 ---
 
-### 4. Run Application
+### 4. Run the app
 
 python app.py
 
 ---
 
-### 5. Open in Browser
+### 5. Open in browser
 
 http://127.0.0.1:5000
 
 ---
 
-## 🎯 Learning Outcomes
+## 🎤 Viva Explanation (Short)
 
-This project helps understand:
-
-* Complex numbers and their behavior
-* Iterative mathematical functions
-* Convergence vs divergence
-* Visualization of mathematical models
-* Basics of web-based applications using Flask
+“This project visualizes encryption and decryption processes across different cryptographic techniques. It breaks down each step mathematically to help users understand how secure communication works.”
 
 ---
 
-## 🎤 Viva Explanation (Short Version)
+## 🎤 Viva Explanation (Detailed)
 
-“This project visualizes the Mandelbrot set, which is based on iterative complex number functions. Each pixel represents whether a function remains bounded or diverges, and this behavior is visualized using color mapping.”
+“This system demonstrates three levels of cryptographic techniques, starting from simple modular arithmetic in Caesar Cipher, moving to bitwise operations in XOR, and finally to number theory in RSA. Each algorithm is explained step-by-step, showing both encryption and decryption to provide complete conceptual clarity.”
 
 ---
 
-## 🎤 Viva Explanation (Detailed Version)
+## 💡 Key Learning Outcomes
 
-“The Mandelbrot set is generated by repeatedly applying a simple equation on complex numbers. For each point in the complex plane, we check whether the sequence remains bounded. If it diverges, we color it differently based on how fast it escapes. This produces complex fractal structures from a simple mathematical rule.”
+* Understanding encryption vs decryption
+* Application of mathematical concepts in security
+* Modular arithmetic and number theory
+* Bitwise operations (XOR)
+* Building interactive web applications
 
 ---
 
 ## 🔮 Future Enhancements
 
-* 🖱 Zoom and pan functionality
-* 🎬 Smooth animation transitions
-* 🎨 Advanced color gradients
-* ⚡ GPU-based rendering (WebGL)
-* 📊 Real-time interaction
+* 📊 Graphical visualization of transformations
+* 🎬 Animated transitions between steps
+* 🔐 Real-world cryptographic standards (AES)
+* 🌐 Deployment on web
 
 ---
 
 ## 👩‍💻 Author
 
-Developed as part of an **Engineering Mathematics Project** to demonstrate how mathematical concepts can be visualized using programming.
+Developed as part of an **Engineering Mathematics & Cryptography Project** to demonstrate real-world applications of mathematical concepts.
+
+- Gajanan Domatwar
+- Pratiksha Bade
+- Aniket Ghorpade
 
 ---
