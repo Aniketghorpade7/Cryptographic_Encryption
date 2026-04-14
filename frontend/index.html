@@ -16,6 +16,10 @@
             --dark-bg: #050510;
         }
 
+        html {
+            font-size: 12px;
+        }
+
         /* The road bg is a tall repeating tile - scrolls DOWN (positive y increases downward) */
         body {
             background-color: var(--dark-bg);
@@ -321,14 +325,64 @@
 
         function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+        /* ──────────── Helper to split steps if too long ──────────── */
+        function expandSteps(steps) {
+            let expanded = [];
+            steps.forEach(step => {
+                const lines = step.d.split('\n');
+                if (lines.length > 8) {
+                    const splitIdx = lines.findIndex((l, i) => i > 0 && l.trim() === '');
+                    if (splitIdx > 0 && splitIdx < 5) {
+                        const prefix = lines.slice(0, splitIdx + 1).join('\n');
+                        const dataLines = lines.slice(splitIdx + 1);
+                        
+                        // Break into two parts to fit on screen
+                        const half = Math.ceil(dataLines.length / 2);
+                        const part1 = dataLines.slice(0, half);
+                        const part2 = dataLines.slice(half);
+
+                        expanded.push({
+                            ...step,
+                            t: step.t + " [Part 1]",
+                            d: prefix + part1.join('\n')
+                        });
+                        if (part2.length > 0) {
+                            expanded.push({
+                                ...step,
+                                t: step.t + " [Part 2]",
+                                d: prefix + part2.join('\n')
+                            });
+                        }
+                    } else {
+                        const half = Math.ceil(lines.length / 2);
+                        expanded.push({
+                            ...step,
+                            t: step.t + " [Part 1]",
+                            d: lines.slice(0, half).join('\n')
+                        });
+                        expanded.push({
+                            ...step,
+                            t: step.t + " [Part 2]",
+                            d: lines.slice(half).join('\n')
+                        });
+                    }
+                } else {
+                    expanded.push(step);
+                }
+            });
+            return expanded;
+        }
+
         /* ──────────── Render all encryption steps ──────────── */
         function renderSteps(data) {
             document.getElementById('setup-view').classList.add('card-hidden');
             const container = document.getElementById('steps-container');
             container.innerHTML = '';
 
-            data.steps.forEach((step, idx) => {
-                const isLast = idx === data.steps.length - 1;
+            const processedSteps = expandSteps(data.steps);
+
+            processedSteps.forEach((step, idx) => {
+                const isLast = idx === processedSteps.length - 1;
                 const id     = `step-enc-${idx}`;
                 let btnHtml;
 
@@ -366,10 +420,11 @@
         function startDecryptionWalk() {
             scrollRoad(500);
             const container = document.getElementById('steps-container');
-            const decsteps  = globalData.decryption_steps;
+            
+            const processedDecSteps = expandSteps(globalData.decryption_steps);
 
-            decsteps.forEach((step, idx) => {
-                const isLast = idx === decsteps.length - 1;
+            processedDecSteps.forEach((step, idx) => {
+                const isLast = idx === processedDecSteps.length - 1;
                 const id     = `step-dec-${idx}`;
                 let btnHtml;
 
